@@ -5,7 +5,7 @@ This repository holds the code for FraudGT framework.
 ## Environment Setup
 You can create a conda environment to easily run the code. For example, we can create a virtual environment named `fraudGT`:
 ```
-conda create -n fraudGT python=3.9 -y
+conda create -n fraudGT python=3.10 -y
 conda activate fraudGT
 ```
 Install the required packages using the following commands:
