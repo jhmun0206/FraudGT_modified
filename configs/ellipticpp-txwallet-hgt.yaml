@@ -1,0 +1,73 @@
+# configs/ellipticpp-txwallet-hgt.yaml
+# Elliptic++ Tx+Wallet 이종 그래프 설정
+out_dir: /data/jhmun0206/results/fraudgt/ellipticpp_tx_wallet
+
+dataset:
+  name: ellipticpp_tx_wallet
+  dir: /data/jhmun0206/datasets/ellipticpp
+  format: PyG
+  task: node
+  task_type: classification
+  to_undirected: False
+  add_ports: True
+  reverse_mp: True
+  hetero: True
+  target_ntype: tx  # tx 노드만 classification 타겟
+  
+  # Wallet 엣지 샘플링 옵션 (옵션)
+  wallet_edge_sample_ratio: 1.0  # 1.0 = 전체 사용, 0.5 = 50% 샘플링
+  max_wallet_nodes: null  # null = 제한 없음, 숫자 = 최대 wallet 노드 수
+
+share:
+  dim_in: 183  # tx 특징 차원 (자동으로 설정됨)
+  dim_out: 3   # 클래스 수 (자동으로 설정됨)
+  num_splits: 1
+
+model:
+  type: hgt
+  loss_fun: cross_entropy
+
+gnn:
+  layer_type: hgtconv
+  layers_mp: 3
+  layers_post_mp: 1
+  dim_inner: 128
+  dropout: 0.1
+  batch_norm: True
+  residual: True
+  head: node
+  l2norm: True
+  clear_feature: True
+  attn_heads: 1
+  target_ntype: tx  # HGT 모델에서 사용할 타겟 노드 타입
+
+train:
+  mode: custom
+  batch_size: 1024
+  sampler: neighbor
+  neighbor_sizes: [20, 15, 10]
+  add_ego_id: True
+  eval_period: 1
+  enable_ckpt: True
+  ckpt_best: True
+  num_workers: 0  # 처음에는 0으로 시작
+
+val:
+  sampler: neighbor
+
+optim:
+  optimizer: adam
+  base_lr: 0.001
+  weight_decay: 0.0001
+  max_epoch: 100
+  scheduler: cos
+
+seed: 0
+device: cuda
+print: both
+metric_best: f1
+metric_agg: argmax
+
+tensorboard_each_run: True
+tensorboard_agg: True
+
