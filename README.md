@@ -36,3 +36,26 @@ chmox +x ./run/interactive_run.sh
 ./run/interactive_run.sh
 ```
 
+## Heterogeneous Graph Support
+
+This repository includes modifications to support heterogeneous graph learning on the Elliptic++ dataset with transaction (tx) and wallet (address) node types. 
+
+### Key Features
+- **EllipticPPPyG_TxWallet**: New dataset class for tx+wallet heterogeneous graphs
+- **Target Node Type Classification**: Support for node type-specific classification (e.g., classify only 'tx' nodes)
+- **HGT Model Integration**: Modified HGT model to work with heterogeneous graphs
+
+### Quick Start
+See `REPRODUCTION_GUIDE.md` and `HETERO_GRAPH_GUIDE.md` for detailed instructions on:
+- Setting up the dataset
+- Running heterogeneous graph experiments
+- Understanding the modifications made to FraudGT
+
+### Modified Files
+- `fraudGT/datasets/ellipticpp_tx_wallet_pyg.py` - New dataset class
+- `fraudGT/config/dataset_config.py` - Added `target_ntype` configuration
+- `fraudGT/loader/master_loader.py` - Added dataset loader hook
+- `fraudGT/graphgym/loader.py` - Support for target node type
+- `fraudGT/graphgym/models/hgt.py` - HGT model modifications
+- `configs/ellipticpp-txwallet-hgt.yaml` - Configuration file
+
