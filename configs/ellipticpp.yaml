@@ -1,0 +1,29 @@
+out_dir: /data/jhmun0206/results/fraudgt/ellipticpp
+
+dataset:
+  name: ellipticpp
+  dir: /local_datasets/ellipticpp
+  format: pyg
+  split: [1.0, 0.0, 0.0]   # 👈 전부 train으로만
+  split_mode: standard
+  split_index: 0
+  task: node
+  task_type: classification
+
+model:
+  type: mlp           # run_ellipticpp.py에서 우리가 등록한 MLP
+
+optim:
+  optimizer: adam
+  base_lr: 0.001
+  weight_decay: 0.0001
+  max_epoch: 5
+
+train:
+  mode: custom
+  batch_size: 64      # 너 데이터 크면 여기 조절
+  eval_period: 1
+  skip_train_eval: False
+
+val:
+  sampler: full_batch

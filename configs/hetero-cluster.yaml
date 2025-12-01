@@ -1,0 +1,83 @@
+# configs/hetero-cluster.yaml
+# 방법 A: 클러스터링 기반 이종 그래프
+out_dir: /data/jhmun0206/results/fraudgt/ellipticpp_hetero_cluster
+
+dataset:
+  name: ellipticpp
+  dir: /data/jhmun0206/datasets/ellipticpp
+  format: PyG
+  task: node
+  task_type: classification
+  to_undirected: False
+  add_ports: True
+  reverse_mp: True
+  hetero: True
+  task_entity: tx  # 트랜잭션 노드가 타겟
+  hetero_mode: v2_cluster  # 클러스터링 기반 이종 그래프
+  
+  # 클러스터링 설정
+  cluster:
+    algorithm: kmeans  # 'kmeans' or 'minibatch_kmeans'
+    num_clusters: 500  # 클러스터 개수
+    seed: null  # null이면 cfg.seed 사용
+    sample_ratio_for_fit: 0.2  # 클러스터링 fit용 샘플링 비율
+    max_fit_samples: 30000  # 최대 fit 샘플 수
+    add_cluster_cluster_edges: True  # 클러스터 간 엣지 추가 여부
+    cluster_cluster_k: 5  # 각 클러스터당 상위 k개 유사 클러스터 연결
+  
+  # 공통 상한
+  max_extra_nodes: 10000
+  max_extra_edges_per_type: 100000
+
+share:
+  dim_in: 183
+  dim_out: 3
+  num_splits: 1
+
+model:
+  type: hgt
+  loss_fun: cross_entropy
+
+gnn:
+  layer_type: hgtconv
+  layers_mp: 3
+  layers_post_mp: 1
+  dim_inner: 128
+  dropout: 0.1
+  batch_norm: True
+  residual: True
+  head: node
+  l2norm: True
+  clear_feature: True
+  target_ntype: tx  # 타겟 노드 타입
+
+train:
+  mode: custom
+  batch_size: 1024
+  sampler: neighbor
+  neighbor_sizes: [20, 15, 10]
+  add_ego_id: True
+  eval_period: 1
+  enable_ckpt: True
+  ckpt_best: True
+  num_workers: 0  # 처음에는 0으로 시작
+
+val:
+  sampler: neighbor
+
+optim:
+  optimizer: adam
+  base_lr: 0.001
+  weight_decay: 0.0001
+  max_epoch: 100
+  scheduler: cos
+
+seed: 0
+device: cuda
+print: both
+metric_best: f1
+metric_agg: argmax
+
+tensorboard_each_run: True
+tensorboard_agg: True
+

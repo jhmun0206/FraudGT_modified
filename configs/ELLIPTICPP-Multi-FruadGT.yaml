@@ -1,0 +1,64 @@
+# configs/ELLIPTICPP-Multi-FraudGT.yaml
+out_dir: /data/jhmun0206/results/fraudgt/ellipticpp_multi_v2
+
+dataset:
+  name: ellipticpp
+  dir: /data/jhmun0206/datasets/ellipticpp
+  format: PyG
+  task: node
+  task_type: classification
+  to_undirected: True
+  add_ports: True
+  reverse_mp: True          # ← reverse message passing
+  hetero: False
+  task_entity: node
+
+share:
+  dim_in: 183
+  dim_out: 3
+  num_splits: 1
+
+model:
+  type: gnn
+  loss_fun: cross_entropy
+
+gnn:
+  layer_type: generalconv
+  layers_mp: 3
+  layers_post_mp: 1
+  dim_inner: 128
+  dropout: 0.1
+  batch_norm: True
+  residual: True
+  head: node
+  l2norm: True
+  clear_feature: True
+
+train:
+  mode: custom
+  batch_size: 1024
+  sampler: neighbor
+  neighbor_sizes: [20, 15, 10]
+  add_ego_id: True
+  eval_period: 1
+  enable_ckpt: True
+  ckpt_best: True
+
+val:
+  sampler: neighbor
+
+optim:
+  optimizer: adam
+  base_lr: 0.001
+  weight_decay: 0.0001
+  max_epoch: 100
+  scheduler: cos
+
+seed: 0
+device: cuda
+print: both
+metric_best: f1
+metric_agg: argmax
+
+tensorboard_each_run: True
+tensorboard_agg: True

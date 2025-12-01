@@ -1,0 +1,78 @@
+# configs/ELLIPTICPP-Multi-FraudGT.yaml (실제 이종 그래프 버전)
+# 기존 결과 보존을 위해 다른 디렉토리 사용
+out_dir: /data/jhmun0206/results/fraudgt/ellipticpp_multi_hetero_v2
+
+dataset:
+  name: ellipticpp
+  dir: /data/jhmun0206/datasets/ellipticpp
+  format: PyG
+  task: node
+  task_type: classification
+  to_undirected: False
+  add_ports: True
+  reverse_mp: True          # ← reverse message passing
+  hetero: True
+  task_entity: tx            # 트랜잭션 노드가 타겟
+  hetero_version: v2          # 새로운 이종 그래프 버전 사용
+  
+  # Hetero v2 샘플링 및 상한 설정 (안정성을 위해)
+  hetero_v2_sample_ratio: 0.02  # 2% 샘플링 (작게 시작)
+  hetero_v2_max_tx_samples: 20000  # 최대 샘플링 트랜잭션 수
+  hetero_v2_min_tx_samples: 1000  # 최소 샘플링 트랜잭션 수
+  hetero_v2_max_addresses: 100000  # 최대 주소 노드 수
+  hetero_v2_max_tx_to_addr_edges: 50000  # 최대 tx->address 엣지 수
+  hetero_v2_max_addr_to_tx_edges: 50000  # 최대 address->tx 엣지 수
+  hetero_v2_avg_outputs_per_tx: 2  # 트랜잭션당 평균 출력 주소 수
+  hetero_v2_avg_inputs_per_tx: 1  # 트랜잭션당 평균 입력 주소 수
+
+share:
+  dim_in: 183
+  dim_out: 3
+  num_splits: 1
+
+model:
+  type: hgt
+  loss_fun: cross_entropy
+
+gnn:
+  layer_type: hgtconv
+  layers_mp: 3
+  layers_post_mp: 1
+  dim_inner: 128
+  dropout: 0.1
+  batch_norm: True
+  residual: True
+  head: node
+  l2norm: True
+  clear_feature: True
+  target_ntype: tx            # 타겟 노드 타입 명시
+
+train:
+  mode: custom
+  batch_size: 1024
+  sampler: neighbor
+  neighbor_sizes: [20, 15, 10]
+  add_ego_id: True
+  eval_period: 1
+  enable_ckpt: True
+  ckpt_best: True
+
+val:
+  sampler: neighbor
+
+optim:
+  optimizer: adam
+  base_lr: 0.001
+  weight_decay: 0.0001
+  max_epoch: 100
+  scheduler: cos
+
+seed: 0
+device: cuda
+print: both
+metric_best: f1
+metric_agg: argmax
+
+tensorboard_each_run: True
+tensorboard_agg: True
+

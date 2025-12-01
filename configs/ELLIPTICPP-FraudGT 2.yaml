@@ -1,0 +1,52 @@
+out_dir: /data/jhmun0206/results/fraudgt/ellipticpp_fraudgt
+
+dataset:
+  name: ellipticpp
+  dir: /data/jhmun0206/datasets/ellipticpp
+  format: PyG
+  task: node
+  task_type: classification
+  split: [0.8, 0.1, 0.1]   # 있어도 무해하지만, 마스크가 있으면 무시됨
+  split_mode: standard
+  to_undirected: True
+
+model:
+  type: gnn
+  loss_fun: cross_entropy
+
+gnn:
+  layer_type: generalconv
+  layers_pre_mp: 0
+  layers_mp: 3
+  layers_post_mp: 1
+  dim_inner: 128
+  dropout: 0.1
+  batch_norm: True
+  residual: True
+  head: node
+  l2norm: True
+
+train:
+  mode: custom
+  batch_size: 1024
+  sampler: neighbor
+  neighbor_sizes: [20, 15, 10]
+  eval_period: 1
+  enable_ckpt: True
+  ckpt_best: True
+
+val:
+  sampler: neighbor
+
+optim:
+  optimizer: adam
+  base_lr: 0.001
+  weight_decay: 0.0001
+  max_epoch: 50
+  scheduler: cos
+
+seed: 0
+device: cuda
+print: both
+metric_best: auto
+metric_agg: argmax

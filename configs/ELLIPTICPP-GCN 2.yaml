@@ -1,0 +1,56 @@
+out_dir: /data/jhmun0206/results/fraudgt/ellipticpp_gcn
+
+dataset:
+  name: ellipticpp
+  # 로컬 경로가 아니라 서버 실제 경로로!
+  dir: /data/jhmun0206/datasets/ellipticpp
+  format: pyg
+  task: node
+  task_type: classification
+  split: [0.8, 0.1, 0.1]
+  split_mode: standard
+  to_undirected: True
+
+# 출력/입력 차원 명시 (자동 추론이 4-class로 잡히는 이슈 방지)
+share:
+  dim_in: 183      # txs_features 기준
+  dim_out: 3       # 라벨 {0,1,2}
+
+model:
+  type: gnn
+  loss_fun: cross_entropy
+
+gnn:
+  layer_type: generalconv
+  layers_pre_mp: 0
+  layers_mp: 3
+  layers_post_mp: 1
+  dim_inner: 128
+  batch_norm: True
+  residual: True
+  dropout: 0.2
+  head: node
+  l2norm: True
+  clear_feature: False
+
+train:
+  mode: custom
+  # 노드-미니배치 크기(메모리 보고 조절: 1024~4096 권장)
+  batch_size: 2048
+  # ✅ 유효한 샘플러로 교체
+  sampler: neighbor
+  # 층별 이웃 샘플 수 (GNN 레이어 수에 맞게 길이=3 또는 더 길어도 됨)
+  neighbor_sizes: [20, 15, 10]
+  eval_period: 1
+  enable_ckpt: True
+  ckpt_best: True
+
+optim:
+  optimizer: adam
+  base_lr: 0.001
+  weight_decay: 0.0001
+  max_epoch: 50
+  scheduler: cos
+
+device: cuda
+num_workers: 0
